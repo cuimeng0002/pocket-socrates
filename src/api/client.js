@@ -7,21 +7,18 @@ export const request = async (url, options = {}) => {
   const config = apiConfig[apiConfig.modelType]
   const apiKey = config.apiKey
   
-  // 生产环境中使用CORS代理来解决跨域问题，开发环境中使用相对路径
+  // 直接使用阿里云百炼API的OpenAI兼容接口，它支持CORS
   // 检查当前环境是否为生产环境
   const isProduction = import.meta.env.PROD
-  // 生产环境中使用CORS代理，开发环境中使用相对路径
-  // 使用免费的CORS代理服务来解决跨域问题
-  const corsProxy = 'https://api.allorigins.win/get?url='
-  const alicloudUrl = `https://dashscope.aliyuncs.com${url}`
-  const finalUrl = isProduction ? `${corsProxy}${encodeURIComponent(alicloudUrl)}` : url
+  // 生产环境中使用阿里云百炼API的OpenAI兼容接口，开发环境中使用相对路径
+  const finalUrl = isProduction ? `https://dashscope.aliyuncs.com/openai/v1/chat/completions` : url
   
   // 默认请求配置
   const defaultOptions = {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      // 阿里云百炼API使用Authorization: Bearer <apiKey>格式
+      // 阿里云百炼API的OpenAI兼容接口使用Authorization: Bearer <apiKey>格式
       'Authorization': `Bearer ${apiKey}`
     },
     // 生产环境中使用cors模式，开发环境中使用same-origin模式
@@ -70,26 +67,46 @@ export const request = async (url, options = {}) => {
 // 大模型对话请求函数
 export const chatRequest = async (messages) => {
   try {
-    // 使用正确的阿里云百炼API请求格式
-    // 参考：https://help.aliyun.com/zh/dashscope/developer-reference/api-details
-    const response = await request('/api/v1/services/aigc/text-generation/generation', {
-      body: JSON.stringify({
-        model: 'qwen-turbo',
-        input: {
-          messages: messages
-        },
-        parameters: {
+    // 检查当前环境是否为生产环境
+    const isProduction = import.meta.env.PROD
+    
+    if (isProduction) {
+      // 生产环境：使用阿里云百炼API的OpenAI兼容接口请求格式
+      const response = await request('', {
+        body: JSON.stringify({
+          model: 'qwen-turbo',
+          messages: messages,
           temperature: 0.7,
           max_tokens: 1000
-        }
+        })
       })
-    })
-    
-    // 添加详细日志，查看完整响应结构
-    console.log('Full Response:', JSON.stringify(response, null, 2))
-    
-    // 返回完整的响应对象，让调用者自行处理
-    return response
+      
+      // 添加详细日志，查看完整响应结构
+      console.log('Full Response:', JSON.stringify(response, null, 2))
+      
+      // 返回完整的响应对象，让调用者自行处理
+      return response
+    } else {
+      // 开发环境：使用阿里云百炼API的原生请求格式
+      const response = await request('/api/v1/services/aigc/text-generation/generation', {
+        body: JSON.stringify({
+          model: 'qwen-turbo',
+          input: {
+            messages: messages
+          },
+          parameters: {
+            temperature: 0.7,
+            max_tokens: 1000
+          }
+        })
+      })
+      
+      // 添加详细日志，查看完整响应结构
+      console.log('Full Response:', JSON.stringify(response, null, 2))
+      
+      // 返回完整的响应对象，让调用者自行处理
+      return response
+    }
   } catch (error) {
     console.error('Chat request failed:', error)
     throw error
