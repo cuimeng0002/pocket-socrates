@@ -7,9 +7,11 @@ export const request = async (url, options = {}) => {
   const config = apiConfig[apiConfig.modelType]
   const apiKey = config.apiKey
   
-  // 使用相对路径，通过Vite代理转发
-  // 这样可以避免CORS跨域问题
-  const finalUrl = url
+  // 生产环境中直接使用阿里云百炼API的完整URL，开发环境中使用相对路径
+  // 检查当前环境是否为生产环境
+  const isProduction = import.meta.env.PROD
+  // 生产环境中使用完整URL，开发环境中使用相对路径
+  const finalUrl = isProduction ? `https://dashscope.aliyuncs.com${url}` : url
   
   // 默认请求配置
   const defaultOptions = {
@@ -19,8 +21,8 @@ export const request = async (url, options = {}) => {
       // 阿里云百炼API使用Authorization: Bearer <apiKey>格式
       'Authorization': `Bearer ${apiKey}`
     },
-    // 使用same-origin模式，确保请求先发送到本地代理服务器
-    mode: 'same-origin',
+    // 生产环境中使用cors模式，开发环境中使用same-origin模式
+    mode: isProduction ? 'cors' : 'same-origin',
     // 添加超时设置，避免浏览器过早关闭连接
     signal: AbortSignal.timeout(60000), // 60秒超时
     ...options
