@@ -7,11 +7,14 @@ export const request = async (url, options = {}) => {
   const config = apiConfig[apiConfig.modelType]
   const apiKey = config.apiKey
   
-  // 生产环境中直接使用阿里云百炼API的完整URL，开发环境中使用相对路径
+  // 生产环境中使用CORS代理来解决跨域问题，开发环境中使用相对路径
   // 检查当前环境是否为生产环境
   const isProduction = import.meta.env.PROD
-  // 生产环境中使用完整URL，开发环境中使用相对路径
-  const finalUrl = isProduction ? `https://dashscope.aliyuncs.com${url}` : url
+  // 生产环境中使用CORS代理，开发环境中使用相对路径
+  // 使用免费的CORS代理服务来解决跨域问题
+  const corsProxy = 'https://api.allorigins.win/get?url='
+  const alicloudUrl = `https://dashscope.aliyuncs.com${url}`
+  const finalUrl = isProduction ? `${corsProxy}${encodeURIComponent(alicloudUrl)}` : url
   
   // 默认请求配置
   const defaultOptions = {
