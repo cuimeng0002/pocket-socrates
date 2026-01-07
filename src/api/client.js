@@ -50,8 +50,16 @@ export const request = async (url, options = {}) => {
       throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`)
     }
     
-    const data = await response.json()
-    console.log('API Response Data:', data)
+    let data = await response.json()
+    console.log('Raw API Response Data:', data)
+    
+    // 处理CORS代理返回的数据格式，它会将原始API响应包装在一个contents字段中
+    if (isProduction && data.contents) {
+      // 解析原始API响应
+      data = JSON.parse(data.contents)
+      console.log('Parsed API Response Data:', data)
+    }
+    
     return data
   } catch (error) {
     console.error('API request failed:', error)
