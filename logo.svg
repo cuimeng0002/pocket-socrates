@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
+  <!-- 蓝色圆形背景 -->
+  <circle cx="60" cy="60" r="60" fill="#4A90E2" />
+  
+  <!-- 白色简约笑脸（参考用户提供的图标风格） -->
+  <circle cx="55" cy="55" r="2" fill="#FFFFFF" />
+  <circle cx="65" cy="55" r="2" fill="#FFFFFF" />
+  <path d="M52 65 Q60 72 68 65" fill="none" stroke="#FFFFFF" stroke-width="2" />
+  
+  <!-- 思考波纹（简化设计） -->
+  <path d="M40 55 C35 50 30 50 25 55" fill="none" stroke="#FFFFFF" stroke-width="2" />
+  <path d="M40 60 C35 55 30 55 25 60" fill="none" stroke="#FFFFFF" stroke-width="2" />
+  
+  <!-- 红色箭头（参考用户提供的图标风格） -->
+  <path d="M80 55 L95 45 L95 50 L90 50 L90 60 L95 60 L95 65 L80 55 Z" fill="#E74C3C" />
+</svg>
